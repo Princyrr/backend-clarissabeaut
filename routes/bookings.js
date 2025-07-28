@@ -87,7 +87,7 @@ router.post('/', async (req, res) => {
 
     // 5. Enviar e-mail para cliente confirmando o agendamento
   
-const companyName = 'Clarissa Alcantara Beauty'; 
+const companyName = 'Clarissa Alcântara Beauty'; 
 
 // 5. Enviar e-mail para cliente confirmando o agendamento
 const emailHtmlCliente = `

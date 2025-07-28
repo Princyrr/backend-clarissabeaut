@@ -16,12 +16,13 @@ const toDateTime = (dateStr, timeStr) => {
 
 // === TRANSPORTADOR DE E-MAIL (NodeMailer)
 const transporter = nodemailer.createTransport({
-  service: 'gmail',  // ou host, porta se usar outro SMTP
+  service: 'gmail',
   auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS
+    user: process.env.EMAIL_USER || 'clarissaalcantara064@gmail.com',
+    pass: process.env.EMAIL_PASS || 'oirgbfdyeupamfnx'
   }
 });
+
 
 // === GET /api/bookings?date=YYYY-MM-DD
 router.get('/', async (req, res) => {
@@ -66,7 +67,7 @@ router.post('/', async (req, res) => {
     await booking.save();
 
     // 4. Enviar e-mail para administradora
-    const emailHtml = `
+    const emailHtmlAdmin = `
       <h2>Novo Agendamento</h2>
       <p><strong>Nome:</strong> ${name}</p>
       <p><strong>Serviço:</strong> ${service}</p>
@@ -81,15 +82,69 @@ router.post('/', async (req, res) => {
       from: process.env.EMAIL_USER,
       to: 'claraalcantara@icloud.com',
       subject: 'Novo agendamento recebido',
-      html: emailHtml
+      html: emailHtmlAdmin
     });
 
-    res.status(201).json(booking);
+    // 5. Enviar e-mail para cliente confirmando o agendamento
+  
+const companyName = 'Clarissa Alcantara Beauty'; 
+
+// 5. Enviar e-mail para cliente confirmando o agendamento
+const emailHtmlCliente = `
+  <div style="font-family: Arial, sans-serif; color: #333;">
+    <h2 style="color: #fbbf24;">Confirmação de Agendamento</h2>
+    <p>Olá <strong>${name}</strong>,</p>
+    <p>Seu agendamento foi confirmado com sucesso. Aqui estão os detalhes:</p>
+    <table style="border-collapse: collapse; width: 100%; max-width: 400px;">
+      <tbody>
+        <tr>
+          <td style="padding: 8px; border: 1px solid #ddd;"><strong>Serviço:</strong></td>
+          <td style="padding: 8px; border: 1px solid #ddd;">${service}</td>
+        </tr>
+        <tr>
+          <td style="padding: 8px; border: 1px solid #ddd;"><strong>Data:</strong></td>
+          <td style="padding: 8px; border: 1px solid #ddd;">${new Date(date).toLocaleDateString('pt-PT')}</td>
+        </tr>
+        <tr>
+          <td style="padding: 8px; border: 1px solid #ddd;"><strong>Hora:</strong></td>
+          <td style="padding: 8px; border: 1px solid #ddd;">${time}</td>
+        </tr>
+        <tr>
+          <td style="padding: 8px; border: 1px solid #ddd;"><strong>Telefone:</strong></td>
+          <td style="padding: 8px; border: 1px solid #ddd;">${phone}</td>
+        </tr>
+        ${notes ? `
+          <tr>
+            <td style="padding: 8px; border: 1px solid #ddd;"><strong>Observações:</strong></td>
+            <td style="padding: 8px; border: 1px solid #ddd;">${notes}</td>
+          </tr>
+        ` : ''}
+      </tbody>
+    </table>
+    <p style="margin-top: 20px;">Agradecemos a preferência!</p>
+    <p>Atenciosamente,<br/><strong>${companyName}</strong></p>
+  </div>
+`;
+
+await transporter.sendMail({
+  from: process.env.EMAIL_USER,
+  to: email, // email da cliente
+  subject: 'Confirmação do seu agendamento',
+  html: emailHtmlCliente
+});
+
+// 6. Responder com sucesso
+res.status(201).json(booking);
+
+
+
   } catch (error) {
     console.error('[ERRO AGENDAMENTO]', error);
     res.status(400).json({ error: error.message });
   }
 });
+
+
 
 // === PUT (sem alterações)
 router.put('/:id', async (req, res) => {

@@ -6,6 +6,9 @@ import closedDatesRoutes from './routes/closed-dates.js';
 import bookingRoutes from './routes/bookings.js';
 
 dotenv.config();
+console.log('EMAIL_USER:', process.env.EMAIL_USER);
+console.log('EMAIL_PASS:', process.env.EMAIL_PASS ? 'carregado' : 'não carregado');
+
 
 const app = express();
 

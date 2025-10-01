@@ -4,11 +4,12 @@ import path from 'path';
 
 const router = express.Router();
 
-// GET /api/reports/files
+// Diretório onde os relatórios PDF são armazenados
+const reportsDir = path.join(process.cwd(), 'reports');
+
+// GET /api/reports/files - lista todos os PDFs disponíveis
 router.get('/files', (req, res) => {
   try {
-    const reportsDir = path.join(process.cwd(), 'reports');
-
     if (!fs.existsSync(reportsDir)) {
       return res.json([]);
     }
@@ -19,24 +20,31 @@ router.get('/files', (req, res) => {
 
     res.json(files);
   } catch (err) {
-    console.error(err);
+    console.error('[ERRO LISTAR RELATÓRIOS]', err);
     res.status(500).json({ error: 'Erro ao listar arquivos de relatório' });
   }
 });
 
-// GET /api/reports/files/:filename
+// GET /api/reports/files/:filename - envia PDF específico
 router.get('/files/:filename', (req, res) => {
   try {
     const { filename } = req.params;
-    const filePath = path.join(process.cwd(), 'reports', filename);
+
+    // Evita path traversal
+    if (filename.includes('..')) {
+      return res.status(400).json({ error: 'Nome de arquivo inválido' });
+    }
+
+    const filePath = path.join(reportsDir, filename);
 
     if (!fs.existsSync(filePath)) {
       return res.status(404).json({ error: 'Arquivo não encontrado' });
     }
 
-    res.sendFile(filePath);
+    // Envia o arquivo como download
+    res.download(filePath, filename);
   } catch (err) {
-    console.error(err);
+    console.error('[ERRO ENVIAR RELATÓRIO]', err);
     res.status(500).json({ error: 'Erro ao enviar arquivo' });
   }
 });

@@ -170,27 +170,55 @@ router.delete('/:id', async (req, res) => {
 });
 
 
-// === UPDATE STATUS
 router.put('/:id/status', async (req, res) => {
   try {
     const { status } = req.body;
+
     if (!['pendente', 'confirmado', 'concluido', 'cancelado'].includes(status)) {
       return res.status(400).json({ error: 'Status inválido' });
     }
 
+    // Pega o agendamento atual
+    const booking = await Booking.findById(req.params.id);
+    if (!booking) return res.status(404).json({ error: 'Agendamento não encontrado' });
+
+    const updateData = { status };
+
+    // Se estiver concluído, define o valor baseado no serviço
+    if (status === 'concluido') {
+      const servicesPrices = {
+        'design-henna-pinca': 20,
+        'design-personalizado-pinca': 10,
+        'design-linha': 15,
+        'nanoblading': 150,
+        'retoque-nanoblading': 50,
+        'brow-lamination-tintura': 35,
+        'brow-lamination-simples': 30,
+        'buco-linha': 5,
+        'design-buco': 20,
+        'design-henna-linha': 20,
+        'design-henna-buco': 25,
+        'maquiagem-social': 40,
+        'clareamento-virilha': 20,
+        'clareamento-axilas': 15,
+        'Remoção a Laser': 60
+      };
+
+      updateData.valor = servicesPrices[booking.service] || 0;
+    }
+
     const updatedBooking = await Booking.findByIdAndUpdate(
       req.params.id,
-      { status },
+      updateData,
       { new: true }
     );
-
-    if (!updatedBooking) return res.status(404).json({ error: 'Agendamento não encontrado' });
 
     res.json(updatedBooking);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 });
+
 
 
 export default router;

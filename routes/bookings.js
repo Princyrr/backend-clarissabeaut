@@ -3,6 +3,7 @@ import Booking from '../models/Booking.js';
 import nodemailer from 'nodemailer';
 import dotenv from 'dotenv';
 
+
 dotenv.config()
 const router = express.Router();
 
@@ -167,5 +168,29 @@ router.delete('/:id', async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 });
+
+
+// === UPDATE STATUS
+router.put('/:id/status', async (req, res) => {
+  try {
+    const { status } = req.body;
+    if (!['pendente', 'confirmado', 'concluido', 'cancelado'].includes(status)) {
+      return res.status(400).json({ error: 'Status inválido' });
+    }
+
+    const updatedBooking = await Booking.findByIdAndUpdate(
+      req.params.id,
+      { status },
+      { new: true }
+    );
+
+    if (!updatedBooking) return res.status(404).json({ error: 'Agendamento não encontrado' });
+
+    res.json(updatedBooking);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 
 export default router;

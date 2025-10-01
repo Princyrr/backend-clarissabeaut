@@ -4,6 +4,9 @@ import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 import closedDatesRoutes from './routes/closed-dates.js';
 import bookingRoutes from './routes/bookings.js';
+import reportsRoutes from './routes/reports.js';
+import reportFilesRoutes from './routes/reportFiles.js';
+
 
 dotenv.config();
 console.log('EMAIL_USER:', process.env.EMAIL_USER);
@@ -18,6 +21,9 @@ app.use(express.json());
 // Rotas
 app.use('/api/closed-dates', closedDatesRoutes);
 app.use('/api/bookings', bookingRoutes);
+app.use('/api/reports', reportsRoutes);
+app.use('/api/reports', reportFilesRoutes);
+
 
 // Conexão com MongoDB
 mongoose.connect(process.env.MONGO_URI)

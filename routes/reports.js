@@ -19,7 +19,7 @@ router.get("/", async (req, res) => {
       }
     });
 
-    const receita = bookings.reduce((acc, b) => acc + (b.price || 0), 0);
+    const receita = bookings.reduce((acc, b) => acc + (b.valor || 0), 0);
 
     // Contagem de serviços (para gráfico de pizza)
     const servicos = {};
@@ -36,7 +36,7 @@ router.get("/", async (req, res) => {
         $group: {
           _id: { month: { $month: "$date" }, year: { $year: "$date" } },
           count: { $sum: 1 },
-          revenue: { $sum: "$price" }
+          revenue: { $sum: "$valor" }
         }
       },
       { $sort: { "_id.year": 1, "_id.month": 1 } }

@@ -67,7 +67,7 @@ router.post('/', async (req, res) => {
     `;
 
     await sgMail.send({
-      to: 'princyrpiress@gmail.com',
+      to: 'claraalcantara@icloud.com',
       from: process.env.EMAIL_FROM,
       subject: 'Novo agendamento recebido',
       html: emailHtmlAdmin
